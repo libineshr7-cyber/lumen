@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: wallz-demo
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: NODE_VERSION
+        value: "20"
