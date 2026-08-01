@@ -20,11 +20,10 @@ async function connectDB() {
   }
 
   try {
-    await mongoose.connect(uri);
+    await mongoose.connect(uri, { serverSelectionTimeoutMS: 3000 });
     console.log('✅ Connected to MongoDB Atlas (database: awareness_demo)');
   } catch (err) {
-    console.error('❌ MongoDB connection error:', err.message);
-    process.exit(1);
+    console.warn('⚠️  MongoDB connection warning (running in offline/fallback mode):', err.message);
   }
 }
 
