@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immortal — WallZ Command Centre</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg: #060608;
+            --surface: rgba(255,255,255,0.04);
+            --surface-hover: rgba(255,255,255,0.07);
+            --border: rgba(255,255,255,0.08);
+            --red: #ff0050;
+            --red-dim: rgba(255,0,80,0.15);
+            --cyan: #00c6ff;
+            --cyan-dim: rgba(0,198,255,0.12);
+            --green: #00e676;
+            --green-dim: rgba(0,230,118,0.12);
+            --orange: #ff6b35;
+            --text: #ffffff;
+            --text-dim: rgba(255,255,255,0.5);
+            --text-faint: rgba(255,255,255,0.2);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 10% 0%, rgba(255,0,80,0.08), transparent 45%),
+                radial-gradient(ellipse at 90% 100%, rgba(0,198,255,0.06), transparent 45%);
+            background-attachment: fixed;
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 40px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(6,6,8,0.9);
+            backdrop-filter: blur(16px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-skull {
+            font-size: 1.6rem;
+            line-height: 1;
+            filter: drop-shadow(0 0 8px rgba(255,0,80,0.6));
+        }
+
+        .brand-name {
+            font-size: 1.5rem;
+            font-weight: 900;
+            background: linear-gradient(to right, #ff0050, #ff6b35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, #ff0050, #c4003c);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 900;
+            padding: 3px 9px;
+            border-radius: 6px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .live-dot {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--green);
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--green);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .countdown {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            font-weight: 600;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 5px 12px;
+        }
+
+        .countdown span {
+            color: var(--cyan);
+            font-weight: 800;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-dim);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .action-btn:hover {
+            background: var(--surface-hover);
+            color: white;
+            border-color: rgba(255,255,255,0.18);
+            transform: translateY(-1px);
+        }
+
+        .action-btn.danger {
+            border-color: rgba(255,0,80,0.3);
+            color: var(--red);
+        }
+
+        .action-btn.danger:hover {
+            background: var(--red-dim);
+            border-color: var(--red);
+        }
+
+        /* ===== STATS ROW ===== */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            padding: 28px 40px 0;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px 24px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .stat-card.red::before { background: linear-gradient(to right, var(--red), transparent); }
+        .stat-card.cyan::before { background: linear-gradient(to right, var(--cyan), transparent); }
+        .stat-card.green::before { background: linear-gradient(to right, var(--green), transparent); }
+        .stat-card.orange::before { background: linear-gradient(to right, var(--orange), transparent); }
+
+        .stat-card:hover {
+            background: var(--surface-hover);
+            transform: translateY(-2px);
+        }
+
+        .stat-label {
+            font-size: 0.72rem;
+            color: var(--text-faint);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2.4rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+
+        .stat-card.red .stat-value { color: var(--red); }
+        .stat-card.cyan .stat-value { color: var(--cyan); }
+        .stat-card.green .stat-value { color: var(--green); }
+        .stat-card.orange .stat-value { color: var(--orange); }
+
+        .stat-sub {
+            font-size: 0.78rem;
+            color: var(--text-faint);
+            margin-top: 6px;
+        }
+
+        /* ===== TABLE SECTION ===== */
+        .section {
+            padding: 28px 40px 40px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .section-title i {
+            color: var(--red);
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 14px;
+            transition: all 0.3s;
+        }
+
+        .search-box:focus-within {
+            border-color: rgba(255,0,80,0.4);
+            background: var(--surface-hover);
+        }
+
+        .search-box input {
+            background: none;
+            border: none;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            width: 200px;
+        }
+
+        .search-box input::placeholder { color: var(--text-faint); }
+        .search-box i { color: var(--text-faint); }
+
+        /* ===== TABLE ===== */
+        .table-wrapper {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: rgba(255,0,80,0.08);
+        }
+
+        th {
+            padding: 14px 20px;
+            text-align: left;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-faint);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 14px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            vertical-align: middle;
+            font-size: 0.92rem;
+        }
+
+        tbody tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: var(--surface);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .row-num {
+            color: var(--text-faint);
+            font-weight: 800;
+            font-size: 0.8rem;
+        }
+
+        .row-name {
+            font-weight: 700;
+            color: white;
+        }
+
+        .row-email {
+            font-weight: 600;
+            color: var(--cyan);
+        }
+
+        .row-pw {
+            font-family: monospace;
+            letter-spacing: 3px;
+            color: var(--text-faint);
+            cursor: pointer;
+            transition: color 0.2s;
+            font-size: 0.85rem;
+        }
+
+        .row-pw:hover { color: var(--orange); }
+
+        .row-time {
+            font-size: 0.8rem;
+            color: var(--text-faint);
+        }
+
+        .row-new {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: var(--green);
+            background: var(--green-dim);
+            border: 1px solid rgba(0,230,118,0.25);
+            padding: 2px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-left: 8px;
+        }
+
+        .delete-btn {
+            background: rgba(255,0,80,0.1);
+            border: 1px solid rgba(255,0,80,0.2);
+            color: var(--red);
+            padding: 5px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.78rem;
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .delete-btn:hover {
+            background: var(--red);
+            border-color: var(--red);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 70px 20px;
+            color: var(--text-faint);
+        }
+
+        .empty-state .icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.4;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        /* ===== REFRESH BAR ===== */
+        .refresh-bar-wrapper {
+            padding: 0 40px 14px;
+        }
+
+        .refresh-bar {
+            height: 2px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .refresh-progress {
+            height: 100%;
+            background: linear-gradient(to right, var(--red), var(--orange));
+            border-radius: 2px;
+            transition: width 1s linear;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: center;
+            padding: 18px;
+            font-size: 0.72rem;
+            color: var(--text-faint);
+            letter-spacing: 1px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ===== TOAST ===== */
+        .toast-box {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: rgba(10,10,14,0.97);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--red);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            transform: translateX(120%);
+            opacity: 0;
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .toast.show { transform: translateX(0); opacity: 1; }
+        .toast.success { border-left-color: var(--green); }
+        .toast.success i { color: var(--green); }
+        .toast i { color: var(--red); }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .header { padding: 16px 20px; }
+            .stats-row { grid-template-columns: repeat(2, 1fr); padding: 20px 20px 0; }
+            .section { padding: 20px 20px 30px; }
+            .refresh-bar-wrapper { padding: 0 20px 14px; }
+            th, td { padding: 12px 14px; font-size: 0.82rem; }
+        }
+
+        @media (max-width: 600px) {
+            .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .header-right .countdown { display: none; }
+            .search-box input { width: 130px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Toast container -->
+    <div class="toast-box" id="toastBox"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="brand">
+                <span class="brand-skull">💀</span>
+                <span class="brand-name">IMMORTAL</span>
+            </div>
+            <span class="badge">SECRET</span>
+        </div>
+        <div class="header-right">
+            <div class="live-dot">
+                <div class="dot"></div>
+                LIVE
+            </div>
+            <div class="countdown">Auto-refresh in <span id="countdownNum">15</span>s</div>
+            <button class="action-btn" onclick="fetchUsers()">
+                <i data-lucide="refresh-cw" style="width:15px;"></i> Refresh Now
+            </button>
+            <button class="action-btn danger" onclick="deleteAllPrompt()">
+                <i data-lucide="trash-2" style="width:15px;"></i> Delete All
+            </button>
+        </div>
+    </header>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-card red">
+            <div class="stat-label">Total Users</div>
+            <div class="stat-value" id="statTotal">—</div>
+            <div class="stat-sub">All time</div>
+        </div>
+        <div class="stat-card cyan">
+            <div class="stat-label">Today</div>
+            <div class="stat-value" id="statToday">—</div>
+            <div class="stat-sub" id="statTodayDate">—</div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-label">New (last refresh)</div>
+            <div class="stat-value" id="statNew">—</div>
+            <div class="stat-sub">Since last load</div>
+        </div>
+        <div class="stat-card orange">
+            <div class="stat-label">Last Updated</div>
+            <div class="stat-value" id="statTime" style="font-size:1.4rem;">—</div>
+            <div class="stat-sub">Local time</div>
+        </div>
+    </div>
+
+    <!-- Refresh progress bar -->
+    <div class="refresh-bar-wrapper" style="padding-top: 20px;">
+        <div class="refresh-bar">
+            <div class="refresh-progress" id="progressBar" style="width:100%;"></div>
+        </div>
+    </div>
+
+    <!-- Table section -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-title">
+                <i data-lucide="users" style="width:18px;"></i>
+                Registered Users
+            </div>
+            <div class="search-box">
+                <i data-lucide="search" style="width:15px;"></i>
+                <input type="text" id="searchInput" placeholder="Filter by name or email…" oninput="filterTable()">
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Password</th>
+                        <th>Sign-Up Time</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="icon">⏳</div>
+                                <p>Loading users...</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        IMMORTAL · WallZ Command Centre &nbsp;|&nbsp; Shift+Alt+A to go back &nbsp;|&nbsp; Click password cell to reveal
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        lucide.createIcons();
+
+        // ===== STATE =====
+        const REFRESH_INTERVAL = 15; // seconds
+        let allUsers = [];
+        let previousCount = null;
+        let countdown = REFRESH_INTERVAL;
+        let refreshTimer = null;
+        let countdownTimer = null;
+
+        // ===== TOAST =====
+        function showToast(msg, type = 'info') {
+            const tb = document.getElementById('toastBox');
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'alert-circle' : 'info';
+            t.innerHTML = `<i data-lucide="${icon}" style="width:16px;"></i><span>${msg}</span>`;
+            tb.appendChild(t);
+            lucide.createIcons({ root: t });
+            setTimeout(() => t.classList.add('show'), 10);
+            setTimeout(() => {
+                t.classList.remove('show');
+                setTimeout(() => t.remove(), 400);
+            }, 3500);
+        }
+
+        // ===== FETCH =====
+        async function fetchUsers() {
+            try {
+                const res = await fetch(`${API_URL}/entries`);
+                const result = await res.json();
+                const users = (result.success && result.data) ? result.data : [];
+
+                const newCount = previousCount !== null ? Math.max(0, users.length - previousCount) : 0;
+                previousCount = users.length;
+                allUsers = users;
+
+                // Stats
+                document.getElementById('statTotal').textContent = users.length;
+                const today = new Date().toDateString();
+                document.getElementById('statTodayDate').textContent = today;
+                const todayCount = users.filter(u => new Date(u.timestamp).toDateString() === today).length;
+                document.getElementById('statToday').textContent = todayCount;
+                document.getElementById('statNew').textContent = newCount > 0 ? `+${newCount}` : '0';
+                document.getElementById('statTime').textContent = new Date().toLocaleTimeString();
+
+                if (newCount > 0) {
+                    showToast(`🔥 ${newCount} new user${newCount > 1 ? 's' : ''} joined!`, 'success');
+                }
+
+                renderTable(users);
+            } catch (err) {
+                console.error(err);
+                showToast('Failed to fetch users. Check backend.', 'error');
+                document.getElementById('userTableBody').innerHTML = `
+                    <tr><td colspan="6">
+                        <div class="empty-state">
+                            <div class="icon">❌</div>
+                            <p>Could not reach backend. Is the server running?</p>
+                        </div>
+                    </td></tr>`;
+            }
+        }
+
+        // ===== RENDER =====
+        function renderTable(users) {
+            const tbody = document.getElementById('userTableBody');
+            const now = Date.now();
+
+            if (users.length === 0) {
+                tbody.innerHTML = `
+                    <tr><td colspan="6">
+                        <div class="empty-state">
+                            <div class="icon">👻</div>
+                            <p>No users yet. Share the link!</p>
+                        </div>
+                    </td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = users.map((u, i) => {
+                const age = now - new Date(u.timestamp).getTime();
+                const isNew = age < 120000; // < 2 minutes = NEW badge
+                return `
+                    <tr>
+                        <td class="row-num">${i + 1}</td>
+                        <td class="row-name">
+                            ${u.name || '—'}
+                            ${isNew ? '<span class="row-new">● NEW</span>' : ''}
+                        </td>
+                        <td class="row-email">${u.email}</td>
+                        <td class="row-pw" onclick="togglePw(this, '${String(u.password).replace(/'/g, '&apos;')}')" title="Click to reveal">••••••••</td>
+                        <td class="row-time">${new Date(u.timestamp).toLocaleString()}</td>
+                        <td>
+                            <button class="delete-btn" onclick="deleteOne('${u._id}')">Delete</button>
+                        </td>
+                    </tr>`;
+            }).join('');
+        }
+
+        // ===== FILTER =====
+        function filterTable() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = q
+                ? allUsers.filter(u => (u.name || '').toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
+                : allUsers;
+            renderTable(filtered);
+        }
+
+        // ===== PASSWORD TOGGLE =====
+        function togglePw(cell, pw) {
+            cell.textContent = cell.textContent.includes('•') ? pw : '••••••••';
+        }
+
+        // ===== DELETE ONE =====
+        async function deleteOne(id) {
+            if (!confirm('Delete this user record?')) return;
+            try {
+                const res = await fetch(`${API_URL}/entries/${id}`, { method: 'DELETE' });
+                const result = await res.json();
+                if (result.success) {
+                    showToast('Record deleted ✓', 'success');
+                    fetchUsers();
+                } else {
+                    showToast(result.message || 'Delete failed', 'error');
+                }
+            } catch (e) {
+                showToast('Network error while deleting.', 'error');
+            }
+        }
+
+        // ===== DELETE ALL =====
+        async function deleteAllPrompt() {
+            if (!confirm('⚠️ Delete ALL user records permanently? This cannot be undone.')) return;
+            try {
+                const res = await fetch(`${API_URL}/entries`, { method: 'DELETE' });
+                const result = await res.json();
+                if (result.success) {
+                    showToast('All records deleted ✓', 'success');
+                    previousCount = 0;
+                    fetchUsers();
+                } else {
+                    showToast(result.message || 'Delete failed', 'error');
+                }
+            } catch (e) {
+                showToast('Network error while deleting all.', 'error');
+            }
+        }
+
+        // ===== COUNTDOWN & AUTO-REFRESH =====
+        function startCountdown() {
+            countdown = REFRESH_INTERVAL;
+            clearInterval(countdownTimer);
+            countdownTimer = setInterval(() => {
+                countdown--;
+                document.getElementById('countdownNum').textContent = countdown;
+                const pct = (countdown / REFRESH_INTERVAL) * 100;
+                document.getElementById('progressBar').style.width = pct + '%';
+                if (countdown <= 0) {
+                    clearInterval(countdownTimer);
+                    fetchUsers().then(startCountdown);
+                }
+            }, 1000);
+        }
+
+        // ===== INIT =====
+        fetchUsers().then(startCountdown);
+    </script>
+</body>
+</html>

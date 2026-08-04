@@ -977,50 +977,7 @@
         </div>
     </div>
 
-    <!-- ===== SECRET ADMIN PANEL ===== -->
-    <div class="admin-overlay" id="adminPanel">
-        <div class="admin-header">
-            <div class="admin-header-left">
-                <span class="admin-badge">SECRET</span>
-                <span class="admin-title">WallZ Admin Dashboard</span>
-            </div>
-            <button class="admin-close-btn" onclick="closeAdmin()" title="Close (Shift+Alt+A)">
-                <i data-lucide="x"></i>
-            </button>
-        </div>
-        <div class="admin-stats">
-            <div class="admin-stat-card">
-                <div class="label">Total Users</div>
-                <div class="value" id="adminTotalUsers">0</div>
-            </div>
-            <div class="admin-stat-card">
-                <div class="label">Today</div>
-                <div class="value" id="adminTodayUsers">0</div>
-            </div>
-        </div>
-        <div class="admin-body">
-            <div class="admin-table-wrapper">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Password</th>
-                            <th>Sign-Up Time</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminTableBody">
-                        <tr>
-                            <td colspan="6" class="admin-empty">No users signed up yet.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="admin-hint">SHIFT + ALT + A to toggle &nbsp;|&nbsp; Click password to reveal</div>
-    </div>
+    <!-- SECRET ADMIN: Shift+Alt+A opens immortal.html in a new tab -->
 
     <!-- Load config first so API_URL is available -->
     <script src="config.js"></script>
@@ -1068,89 +1025,13 @@
             return res.json();
         }
 
-        // ===== ADMIN PANEL LOGIC =====
-        const adminPanel = document.getElementById('adminPanel');
-
-        function openAdmin() {
-            renderAdminTable();
-            adminPanel.classList.add('active');
-            lucide.createIcons({ root: adminPanel });
-        }
-
-        function closeAdmin() {
-            adminPanel.classList.remove('active');
-        }
-
-        async function renderAdminTable() {
-            const tbody = document.getElementById('adminTableBody');
-            tbody.innerHTML = '<tr><td colspan="6" class="admin-empty">Loading...</td></tr>';
-
-            try {
-                const result = await apiGetEntries();
-                const users = (result.success && result.data) ? result.data : [];
-
-                document.getElementById('adminTotalUsers').textContent = users.length;
-                const today = new Date().toDateString();
-                const todayCount = users.filter(u => new Date(u.timestamp).toDateString() === today).length;
-                document.getElementById('adminTodayUsers').textContent = todayCount;
-
-                if (users.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="admin-empty">No users signed up yet.</td></tr>';
-                    return;
-                }
-
-                tbody.innerHTML = users.map((u, i) => `
-                    <tr>
-                        <td style="color:rgba(255,255,255,0.3);font-weight:700">${i + 1}</td>
-                        <td style="font-weight:700">${u.name || '—'}</td>
-                        <td class="admin-email">${u.email}</td>
-                        <td class="admin-pw-cell" onclick="togglePw(this, '${String(u.password).replace(/'/g, "&apos;")}')" title="Click to reveal">••••••••</td>
-                        <td style="font-size:0.85rem;color:rgba(255,255,255,0.5)">${new Date(u.timestamp).toLocaleString()}</td>
-                        <td>
-                            <button onclick="handleDeleteOne('${u._id}')" style="background:#ff0050;border:none;color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.8rem;">Delete</button>
-                        </td>
-                    </tr>
-                `).join('');
-            } catch (err) {
-                console.error(err);
-                tbody.innerHTML = '<tr><td colspan="6" class="admin-empty">Failed to load entries. Is the backend running?</td></tr>';
-            }
-        }
-
-        function togglePw(cell, pw) {
-            cell.textContent = cell.textContent === '••••••••' ? pw : '••••••••';
-        }
-
-        async function handleDeleteOne(id) {
-            if (!confirm('Delete this demo record?')) return;
-            const result = await apiDeleteEntry(id);
-            if (result.success) {
-                showToast('Record deleted', 'success');
-                renderAdminTable();
-            } else {
-                showToast(result.message || 'Delete failed', 'error');
-            }
-        }
-
-        async function handleDeleteAll() {
-            if (!confirm('Delete ALL demo records?')) return;
-            const result = await apiDeleteAllEntries();
-            if (result.success) {
-                showToast('All records deleted', 'success');
-                renderAdminTable();
-            } else {
-                showToast(result.message || 'Delete failed', 'error');
-            }
-        }
-
-        // Shift+Alt+A shortcut
+        // ===== IMMORTAL SHORTCUT: Shift+Alt+A opens the live admin page =====
         document.addEventListener('keydown', (e) => {
             if (e.shiftKey && e.altKey && e.key.toLowerCase() === 'a') {
                 e.preventDefault();
-                adminPanel.classList.contains('active') ? closeAdmin() : openAdmin();
+                window.open('/immortal.html', '_blank');
             }
         });
-
 
         // Elements
         const grid = document.getElementById('wallpaperGrid');
